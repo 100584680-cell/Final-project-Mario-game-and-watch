@@ -1,5 +1,7 @@
 from time import sleep
 
+#pene
+
 SPRITES = {
     "Luigi": {
         "idle": (0, 0, 16, 16),
