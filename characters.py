@@ -1,6 +1,6 @@
 from time import sleep
 
-#pene
+#hugo guay
 
 SPRITES = {
     "Luigi": {
