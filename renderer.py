@@ -1,7 +1,7 @@
 import pyxel
 from entities import Conveyor, Truck, Package
 # Constants
-SCREEN_W = 312
+SCREEN_W = 256
 SCREEN_H = 192
 COLOR_BG = 7
 COLOR_TEXT = 7
@@ -23,10 +23,18 @@ class Renderer:
         
         self.draw_middle_column(game)
         
-        self.draw_package(game.package)
+        for pkg in game.packages:
+            self.draw_package(pkg)
 
         self.draw_character(game.mario)
         self.draw_character(game.luigi)
+
+        if game.game_over:
+            self.draw_game_over()
+
+#TEMPORAL
+    def draw_game_over(self):
+        pyxel.text(SCREEN_W // 2 - 20, SCREEN_H // 2, "GAME OVER", 8)
 
     def draw_middle_column(self, game):
         for i in range(game.end_y-22 , SCREEN_H, 8):
@@ -133,19 +141,24 @@ class Renderer:
         pyxel.blt(conveyor.x + conveyor.length - w_segment, conveyor.y, 0, u_border, v_border, w_segment+1, h, 0)
 
     def draw_package(self, package):
-        # Define sprites for each height (y): (u, v, w, h)
-        # TODO: Update these coordinates with the correct values from your assets
+        # Define sprites for each height: (u, v)
         package_sprites = {
-            160: (35, 8),  # Example: Bottom level
-            128: (32, 24),  # Level 2
-            96: (32, 40),  # Level 3
-            64:  (32, 56),  # Level 4
-            32:  (32, 72),  # Top level
+            152: (32, 0),  # Bottom level
+            136: (32, 16),  # Level 2
+            120: (32, 32),  # Level 3
+            104:  (32, 48),  # Level 4
+            88:  (32, 64),  # Top level
         }
+        if package.show_miss_rect:
+            pyxel.rect(198, 152, 10, 16, 0)
         
         if package.y in package_sprites:
             u, v = package_sprites[package.y]
-            pyxel.blt(package.x, package.y, 0, u, v, 10, 8, 0)
+            if package.x < 55:
+                u = 64
+            if package.x > 195 and package.y<152:
+                u = 48
+            pyxel.blt(package.x, package.y, 0, u, v, 13, 16, 0)
        
 
     def draw_character(self, character):

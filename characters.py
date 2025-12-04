@@ -1,21 +1,20 @@
 from time import sleep
 
-#hugo guay
 
 SPRITES = {
     "Luigi": {
-        "idle": (0, 0, 16, 16),
-        "carry": (0, 16, 16, 16),
+        "normal": (0, 0, 16, 16),
+        "prepared": (0, 16, 16, 16),
         "drop": (0, 32, 16, 16),
-        "up": (0, 48, 16, 16),
-        "down": (0, 48, 16, 16),
+        "rest_1": (0, 48, 16, 16),
+        "rest_2": (0, 64, 16, 16),
     },
     "Mario": {
-        "idle": (16, 0, 16, 16),
-        "carry": (16, 32, 16, 16),
-        "drop": (16, 16, 16, 16),
-        "up": (16, 48, 16, 16),
-        "down": (16, 48, 16, 16),
+        "normal": (16, 0, 16, 16),
+        "prepared": (16, 16, 16, 16),
+        "drop": (16, 32, 16, 16),
+        "rest_1": (16, 48, 16, 16),
+        "rest_2": (16, 64, 16, 16),
     }
 }
 
@@ -25,7 +24,7 @@ class Character:
         self.name = name
         self.__x = x
         self.__y = y
-        self.state = "idle"
+        self.state = "normal"
 
     @property
     def x(self):

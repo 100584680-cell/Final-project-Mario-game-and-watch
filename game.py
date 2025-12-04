@@ -3,9 +3,10 @@ from renderer import Renderer
 from characters import Character
 from entities import Truck, Conveyor, Package
 import time
+import random
 
 # Constants
-SCREEN_W = 312  
+SCREEN_W = 256 
 SCREEN_H = 192
 
 class Difficulty:
@@ -45,14 +46,16 @@ class Game:
         self.current_difficulty = self.easy
 
         # Initialize entities
-        self.score = 0
-        self.failures = 3 # Temporary for testing
+        self.score = 1000
+        self.failures = 0
+        self.game_over = False
+        self.spawn_timer = 0
         
         self.init_level()
         
         self.mario = Character("Mario", 212, 162, self)
         self.luigi = Character("Luigi", 38, 162-12, self)
-        self.package = Package(230, 160)
+        self.packages = [Package(230, 152)]
         
         pyxel.run(self.update, self.draw)
 
@@ -75,7 +78,6 @@ class Game:
         self.conveyors.append(Conveyor(230, 166, 36, 1))
 
     def update(self):
-        time.sleep(0.1)
         if pyxel.btnp(pyxel.KEY_Q):
             pyxel.quit()
         
@@ -94,16 +96,50 @@ class Game:
             self.init_level()
 
 
-        if pyxel.btn(pyxel.KEY_UP):
+        if self.game_over:
+            return
+
+        if pyxel.btnp(pyxel.KEY_UP):
             self.mario.move("up")
-        if pyxel.btn(pyxel.KEY_DOWN):
+        if pyxel.btnp(pyxel.KEY_DOWN):
             self.mario.move("down")
-        if pyxel.btn(pyxel.KEY_W):
+        if pyxel.btnp(pyxel.KEY_W):
             self.luigi.move("up")
-        if pyxel.btn(pyxel.KEY_S):
+        if pyxel.btnp(pyxel.KEY_S):
             self.luigi.move("down")
 
-        self.package.pkg_move()
+        # Spawn logic
+        if self.spawn_timer > 0:
+            self.spawn_timer -= 1
+
+        max_packages = 1 + (self.score // self.current_difficulty.min_pkg_increment)
+        
+        # Check if we can spawn a new package (spawn area clear)
+        spawn_clear = True
+        for pkg in self.packages:
+            if pkg.x > 210 and pkg.y == 152: # Check if any package is in the spawn zone
+                spawn_clear = False
+        
+        if len(self.packages) < max_packages and spawn_clear and self.spawn_timer == 0:
+            self.packages.append(Package(230, 152))
+            self.spawn_timer = random.randint(15, 20) # Wait 15-20 frames before next spawn check
+
+        # Update all packages
+        for pkg in self.packages:
+            pkg.pkg_movement()
+            
+            # Check for miss 
+            if pkg.x < 15 or pkg.x > 240:
+                self.failures += 1
+                self.packages.remove(pkg)
+                if self.failures >= 3:
+                    self.game_over = True
+            
+            # Update character states based on package proximity
+            pkg.show_miss_rect = False
+            pkg.caught = False
+            pkg.check_proximity(self.mario)
+            pkg.check_proximity(self.luigi)
 
     def draw(self):
         self.renderer.draw_game(self)
