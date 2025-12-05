@@ -5,16 +5,18 @@ SPRITES = {
     "Luigi": {
         "normal": (0, 0, 16, 16),
         "prepared": (0, 16, 16, 16),
-        "drop": (0, 32, 16, 16),
-        "rest_1": (0, 48, 16, 16),
-        "rest_2": (0, 64, 16, 16),
+        "prepared_conv_0": (0, 32, 16, 16),
+        "drop": (16, 48, 16, 16),
+        "rest_1": (0, 64, 16, 16),
+        "rest_2": (0, 80, 16, 16),
     },
     "Mario": {
         "normal": (16, 0, 16, 16),
         "prepared": (16, 16, 16, 16),
-        "drop": (16, 32, 16, 16),
-        "rest_1": (16, 48, 16, 16),
-        "rest_2": (16, 64, 16, 16),
+        "prepared_conv_0": (16, 32, 16, 16),
+        "drop": (0, 48, 16, 16),
+        "rest_1": (16, 64, 16, 16),
+        "rest_2": (16, 80, 16, 16),
     }
 }
 
@@ -25,6 +27,20 @@ class Character:
         self.__x = x
         self.__y = y
         self.state = "normal"
+        self.anim_tick = 0
+
+    def catch(self):
+        self.anim_tick = 1
+
+    def update(self):
+        if self.anim_tick > 0:
+            self.anim_tick += 1
+            if self.anim_tick < 4: # 4 ticks prepared
+                self.state = "prepared"
+            elif self.anim_tick < 10: # 5 ticks drop
+                self.state = "drop"
+            else:
+                self.anim_tick = 0
 
     @property
     def x(self):

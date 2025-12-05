@@ -38,7 +38,7 @@ class Renderer:
 
     def draw_middle_column(self, game):
         for i in range(game.end_y-22 , SCREEN_H, 8):
-            pyxel.blt(SCREEN_W*0.5-10,i, 0, 112, 192, 32, 8, 0)
+            pyxel.blt(118,i, 0, 112, 192, 32, 8, 0)
 
     def draw_background(self, game):
         difficulty = game.current_difficulty
@@ -149,8 +149,6 @@ class Renderer:
             104:  (32, 48),  # Level 4
             88:  (32, 64),  # Top level
         }
-        if package.show_miss_rect:
-            pyxel.rect(198, 152, 10, 16, 0)
         
         if package.y in package_sprites:
             u, v = package_sprites[package.y]

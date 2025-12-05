@@ -7,6 +7,7 @@ class Package:
         self.y = y
         self.state = "normal"
         self.caught = False
+        self.direction = ""
 
     @property
     def x(self):
@@ -37,8 +38,7 @@ class Package:
         # Reset state to normal if it was falling (ensures 1-tick duration)
         if self.state == "falling":
             self.state = "normal"
-
-        self.aux_pkg += 1 
+        self.aux_pkg += 1                   
         # height change
         if self.x <45:
             if self.caught:
@@ -56,27 +56,37 @@ class Package:
                 self.x += 10 # Fall off
 
         if self.aux_pkg%9==0:
-            if self.y == 152 or self.y == 152-32 or self.y == 152-32*2 or self.y == 152-32*3 or self.y ==152-32*4:
+            #skip middle column
+            if self.x<152 and self.x>118 and self.direction == "left":
+                self.x=104
+            elif self.x>100 and self.x<150 and self.direction == "right":
+                self.x=150
+            #normal movement
+            elif self.y == 152 or self.y == 152-32 or self.y == 152-32*2 or self.y == 152-32*3 or self.y ==152-32*4:
                 self.x -= 10
+                self.direction = "left"
             else:
                 self.x += 10 
+                self.direction = "right"
     
     def check_proximity(self, character):
         # Mario (Right side)
         if character.name == "Mario":
-            if self.x > 165 and abs(self.y - character.y) < 20 and self.y > character.y:
+            if self.x > 175 and abs(self.y - character.y) < 15 and self.y > character.y:
+                if not self.caught:
+                    self.caught = True
+                    character.catch()
                 character.state = "prepared"
-                self.caught = True
-            else:
-                character.state = "normal"
+
 
         # Luigi (Left side)
         elif character.name == "Luigi":
-            if self.x < 75 and abs(self.y - character.y) < 20 and self.y > character.y:
+            if self.x < 65 and abs(self.y - character.y) < 20 and self.y > character.y:
+                if not self.caught:
+                    self.caught = True
+                    character.catch()
                 character.state = "prepared"
-                self.caught = True
-            else:
-                character.state = "normal"  
+  
         
         
 class Conveyor:

@@ -46,10 +46,10 @@ class Game:
         self.current_difficulty = self.easy
 
         # Initialize entities
-        self.score = 1000
+        self.score = 0
         self.failures = 0
         self.game_over = False
-        self.spawn_timer = 0
+        self.spawn_timer = 40
         
         self.init_level()
         
@@ -122,7 +122,11 @@ class Game:
         
         if len(self.packages) < max_packages and spawn_clear and self.spawn_timer == 0:
             self.packages.append(Package(230, 152))
-            self.spawn_timer = random.randint(15, 20) # Wait 15-20 frames before next spawn check
+            self.spawn_timer = random.randint(35, 40) # Wait 15-20 frames before next spawn check
+
+        # Reset character states
+        self.mario.state = "normal"
+        self.luigi.state = "normal"
 
         # Update all packages
         for pkg in self.packages:
@@ -140,6 +144,9 @@ class Game:
             pkg.caught = False
             pkg.check_proximity(self.mario)
             pkg.check_proximity(self.luigi)
+
+        self.mario.update()
+        self.luigi.update()
 
     def draw(self):
         self.renderer.draw_game(self)
