@@ -4,28 +4,34 @@ from entities import Conveyor, Truck, Package
 SCREEN_W = 256
 SCREEN_H = 192
 COLOR_BG = 7
-COLOR_TEXT = 7
+COLOR_TEXT = 0
 
 class Renderer:
     def __init__(self):
         pass
 
+    def draw_machines(self):
+        pyxel.blt(240, 109, 0, 152, 224, 16, 16, 0)
+        pyxel.blt(240, 170, 0, 120, 224, 16, 16, 0)
+        pyxel.blt(224, 170, 0, 104, 224, 16, 16, 0)
+        pyxel.blt(240, 152, 0, 120, 208, 16, 16, 0)
+
+
+
     def draw_game(self, game):
         pyxel.cls(COLOR_BG)
         self.draw_background(game)
         self.draw_hud(game.score, game.failures)
+        self.draw_machines()
         self.draw_truck(game.truck, game.current_difficulty)
         self.draw_truck_platform(game.truck, game.current_difficulty)
         self.draw_platforms(game.current_difficulty)
         self.draw_ladders(game.current_difficulty)
         for conveyor in game.conveyors:
             self.draw_conveyor(conveyor)
-        
         self.draw_middle_column(game)
-        
         for pkg in game.packages:
             self.draw_package(pkg)
-
         self.draw_character(game.mario)
         self.draw_character(game.luigi)
 
@@ -34,7 +40,24 @@ class Renderer:
 
 #TEMPORAL
     def draw_game_over(self):
-        pyxel.text(SCREEN_W // 2 - 20, SCREEN_H // 2, "GAME OVER", 8)
+        pyxel.cls(0)
+        pyxel.text(90, 80, "GAME OVER", 8)  # red text
+        pyxel.text(70, 110, "Press R - Restart", 7)
+        pyxel.text(70, 120, "Press M - Menu", 7)
+        pyxel.text(70, 130, "Press Q - Quit", 7)
+
+    def draw_menu(self):
+        pyxel.cls(0)
+        #diferent colors for each row of the menu
+        for i in range(0, SCREEN_H, 30):
+            pyxel.rect(0, i, SCREEN_W, 30, i % 13)
+        # Title with animated color
+        pyxel.text(70, 50, "MARIO BROS GAME & WATCH", pyxel.frame_count % 16)
+        pyxel.text(80, 80, "Press 1 - Easy", 7)
+        pyxel.text(80, 90, "Press 2 - Medium", 7)
+        pyxel.text(80, 100, "Press 3 - Extreme", 7)
+        pyxel.text(80, 110, "Press 4 - Crazy", 7)
+        pyxel.text(80, 130, "Press Q - Quit", 8)
 
     def draw_middle_column(self, game):
         for i in range(game.end_y-22 , SCREEN_H, 8):
@@ -148,6 +171,10 @@ class Renderer:
             120: (32, 32),  # Level 3
             104:  (32, 48),  # Level 4
             88:  (32, 64),  # Top level
+            72: (32, 64),   #medium difficulty
+            56: (32, 64),   #medium difficulty
+            40: (32, 64),   #extreme difficulty
+            24: (32, 64),   #extreme difficulty
         }
         
         if package.y in package_sprites:

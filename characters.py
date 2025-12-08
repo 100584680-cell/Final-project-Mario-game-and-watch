@@ -17,6 +17,7 @@ SPRITES = {
         "drop": (0, 48, 16, 16),
         "rest_1": (16, 64, 16, 16),
         "rest_2": (16, 80, 16, 16),
+        "carry": (16, 32, 16, 16)
     }
 }
 
@@ -78,11 +79,12 @@ class Character:
 
     def move(self, direction: str):
         try:
+            #mario (conv0 different heigh) 
             if direction == "up":
                 if self.y == 162:
                     self.y -= 28 
                 else:
-                    self.y -= 32    
+                    self.y -= 32   
             elif direction == "down":
                 if self.y == 134:
                     self.y += 28   

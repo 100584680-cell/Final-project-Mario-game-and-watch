@@ -1,0 +1,184 @@
+class Package:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.state = "normal"
+        self.caught = False
+        self.carrier = None
+        self.floor = 0
+        self.aux_pkg = 0
+        self.direction = ""
+
+    @property
+    def x(self):
+        return self.__x
+
+    @x.setter
+    def x(self, value):
+        if not isinstance(value, int):
+            raise TypeError("x must be an integer")
+        if value < 0:
+            raise ValueError("x must be non-negative")
+        self.__x = value
+
+    @property
+    def y(self):
+        return self.__y
+
+    @y.setter
+    def y(self, value):
+        if not isinstance(value, int):
+            raise TypeError("y must be an integer")
+        if value < 0:
+            raise ValueError("y must be non-negative")
+        self.__y = value
+
+
+    def pkg_movement(self):
+        # Reset state to normal if it was falling (ensures 1-tick duration)
+        if self.state == "falling":
+            self.state = "normal"
+        self.aux_pkg += 1                   
+        # height change
+        if self.x <45:
+            if self.caught:
+                self.y -= 16
+                self.x += 10
+                self.state = "falling"
+            else:
+                 self.x -= 10 # Fall off
+        if self.x > 195 and self.y<152:
+            if self.caught:
+                self.y -= 16
+                self.x -= 10
+                self.state = "falling"
+            else:
+                self.x += 10 # Fall off
+
+        if self.aux_pkg%9==0:
+            #skip middle column
+            if self.x<152 and self.x>118 and self.direction == "left":
+                self.x=104
+            elif self.x>100 and self.x<150 and self.direction == "right":
+                self.x=150
+            #normal movement
+            elif self.y == 152 or self.y == 152-32 or self.y == 152-32*2 or self.y == 152-32*3 or self.y ==152-32*4:
+                self.x -= 10
+                self.direction = "left"
+            else:
+                self.x += 10 
+                self.direction = "right"
+    
+    def check_proximity(self, character):
+        # Mario (Right side)
+        if character.name == "Mario":
+            if self.x > 175 and abs(self.y - character.y) < 15 and self.y > character.y:
+                if not self.caught:
+                    self.caught = True
+                    character.catch()
+                character.state = "prepared"
+
+
+        # Luigi (Left side)
+        elif character.name == "Luigi":
+            if self.x < 65 and abs(self.y - character.y) < 20 and self.y > character.y:
+                if not self.caught:
+                    self.caught = True
+                    character.catch()
+                character.state = "prepared"
+  
+        
+        
+class Conveyor:
+    def __init__(self, x, y, length, direction):
+        self.__x = 0
+        self.__y = 0
+        self.x = x
+        self.y = y
+        self.length = length
+        self.direction = direction 
+        self.packages = []
+
+    @property
+    def x(self):
+        return self.__x
+
+    @x.setter
+    def x(self, value):
+        if not isinstance(value, int):
+            raise TypeError("x must be an integer")
+        if value < 0:
+            raise ValueError("x must be non-negative")
+        self.__x = value
+
+    @property
+    def y(self):
+        return self.__y
+
+    @y.setter
+    def y(self, value):
+        if not isinstance(value, int):
+            raise TypeError("y must be an integer")
+        if value < 0:
+            raise ValueError("y must be non-negative")
+        self.__y = value
+
+class Truck:
+    def __init__(self, x, y):
+        self.__x = 0
+        self.__y = 0
+        self.x = x
+        self.y = y
+        self.capacity = 8
+        self.load = 0
+
+    @property
+    def x(self):
+        return self.__x
+
+    @x.setter
+    def x(self, value):
+        if not isinstance(value, int):
+            raise TypeError("x must be an integer")
+        if value < 0:
+            raise ValueError("x must be non-negative")
+        self.__x = value
+
+    @property
+    def y(self):
+        return self.__y
+
+    @y.setter
+    def y(self, value):
+        if not isinstance(value, int):
+            raise TypeError("y must be an integer")
+        if value < 0:
+            raise ValueError("y must be non-negative")
+        self.__y = value
+
+    def __init__(self, x: int, y: int):
+        self.x = x
+        self.y = y
+        self.capacity = 8
+        self.load = 0
+        self.state = "waiting"  # waiting, delivering, returning
+
+    def load_package(self):
+        if self.state == "waiting":
+            self.load += 1
+            if self.load >= self.capacity:
+                self.state = "delivering"
+
+    def update(self):
+        # Truck delivering animation
+        if self.state == "delivering":
+            self.x -= 2  # move left
+            if self.x < -50:  # off screen
+                self.state = "returning"
+                self.load = 0
+
+        # Truck returning empty
+        elif self.state == "returning":
+            self.x += 2  # move right
+            if self.x >= 200:  # original position
+                self.state = "waiting"

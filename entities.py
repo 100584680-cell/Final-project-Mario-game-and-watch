@@ -1,13 +1,22 @@
 class Package:
-    def __init__(self, x, y):
-        self.__x = 0        
-        self.__y = 0
-        self.aux_pkg = 0
+    def __init__(self, x, y, game):
         self.x = x
         self.y = y
+        self.game = game
         self.state = "normal"
         self.caught = False
+        self.carrier = None
+        self.floor = 0
+        self.aux_pkg = 0
         self.direction = ""
+
+    @property
+    def luigi_y(self):
+        return self.game.luigi.y
+
+    @property
+    def current_difficulty(self):
+        return self.game.current_difficulty
 
     @property
     def x(self):
@@ -39,21 +48,41 @@ class Package:
         if self.state == "falling":
             self.state = "normal"
         self.aux_pkg += 1                   
+        
+        if self.current_difficulty.name == "easy" or self.current_difficulty.name == "crazy":
+            package_last_y = 152-32*2
+            luigi_last_y = 150-32*2
+        elif self.current_difficulty.name == "medium":
+            package_last_y = 152-32*3
+            luigi_last_y = 150-32*3
+        elif self.current_difficulty.name == "extreme":
+            package_last_y = 152-32*4
+            luigi_last_y = 150-32*4
+        
+        #check for truck 
+        if self.x < 45 and self.y == package_last_y and self.game.luigi.y == luigi_last_y:
+            self.game.truck.load_package()
+            self.state = "delivered"
+
+            
         # height change
-        if self.x <45:
+        elif self.x < 45:
             if self.caught:
                 self.y -= 16
                 self.x += 10
                 self.state = "falling"
-            else:
-                 self.x -= 10 # Fall off
-        if self.x > 195 and self.y<152:
+            elif self.y < 152:
+                 self.y += 5 # Fall off
+        
+        if self.x > 195:
             if self.caught:
                 self.y -= 16
+                # Snap to grid
+                self.y = round((self.y - 8) / 16) * 16 + 8
                 self.x -= 10
                 self.state = "falling"
-            else:
-                self.x += 10 # Fall off
+            elif self.y < 152:
+                self.y += 5 # Fall off
 
         if self.aux_pkg%9==0:
             #skip middle column
@@ -72,7 +101,16 @@ class Package:
     def check_proximity(self, character):
         # Mario (Right side)
         if character.name == "Mario":
-            if self.x > 175 and abs(self.y - character.y) < 15 and self.y > character.y:
+            if self.x > 175 and abs(self.y - character.y) <3  and self.y > character.y:
+                if not self.caught:
+                    self.caught = True
+                    character.catch()
+                character.state = "prepared"
+
+
+        # Luigi (Left side)
+        elif character.name == "Luigi":
+            if self.x < 65 and abs(self.y - character.y) < 3 and self.y > character.y:
                 if not self.caught:
                     self.caught = True
                     character.catch()
@@ -131,6 +169,7 @@ class Truck:
         self.y = y
         self.capacity = 8
         self.load = 0
+        self.state = "waiting"    # waiting, delivering, returning
 
     @property
     def x(self):
@@ -155,3 +194,30 @@ class Truck:
         if value < 0:
             raise ValueError("y must be non-negative")
         self.__y = value
+
+    def __init__(self, x: int, y: int):
+        self.x = x
+        self.y = y
+        self.capacity = 8
+        self.load = 0
+        self.state = "waiting"  # waiting, delivering, returning
+
+    def load_package(self):
+        if self.state == "waiting":
+            self.load += 1
+            if self.load >= self.capacity:
+                self.state = "delivering"
+
+    def update(self):
+        # Truck delivering animation
+        if self.state == "delivering":
+            self.x -= 2  # move left
+            if self.x < -50:  # off screen
+                self.state = "returning"
+                self.load = 0
+
+        # Truck returning empty
+        if self.state == "returning":
+            self.x += 2  # move right
+            if self.x >= 200:  # original position
+                self.state = "waiting"

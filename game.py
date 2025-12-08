@@ -36,6 +36,8 @@ class Game:
     def __init__(self):
         pyxel.init(SCREEN_W, SCREEN_H, title="Mario Bros Game & Watch")
         pyxel.load("assets.pyxres")
+
+        self.in_menu = True  # Show main menu before starting
         
         self.renderer = Renderer()
 
@@ -55,7 +57,7 @@ class Game:
         
         self.mario = Character("Mario", 212, 162, self)
         self.luigi = Character("Luigi", 38, 162-12, self)
-        self.packages = [Package(230, 152)]
+        self.packages = [Package(230, 152, self)]
         
         pyxel.run(self.update, self.draw)
 
@@ -78,22 +80,42 @@ class Game:
         self.conveyors.append(Conveyor(230, 166, 36, 1))
 
     def update(self):
+        # Handle main menu input
+
+        if self.in_menu:
+            if pyxel.btnp(pyxel.KEY_1):
+                self.current_difficulty = self.easy
+                self.reset_game()
+                self.in_menu = False
+            elif pyxel.btnp(pyxel.KEY_2):
+                self.current_difficulty = self.medium
+                self.reset_game()
+                self.in_menu = False
+            elif pyxel.btnp(pyxel.KEY_3):
+                self.current_difficulty = self.extreme
+                self.reset_game()
+                self.in_menu = False
+            elif pyxel.btnp(pyxel.KEY_4):
+                self.current_difficulty = self.crazy
+                self.reset_game()
+                self.in_menu = False
+            elif pyxel.btnp(pyxel.KEY_Q):
+                pyxel.quit()
+            return  # Skip game logic while in menu
         if pyxel.btnp(pyxel.KEY_Q):
             pyxel.quit()
         
-        difficulty_changed = False
-        if pyxel.btnp(pyxel.KEY_1):
-            self.current_difficulty = self.easy
-            self.init_level()
-        if pyxel.btnp(pyxel.KEY_2):
-            self.current_difficulty = self.medium
-            self.init_level()
-        if pyxel.btnp(pyxel.KEY_3):
-            self.current_difficulty = self.extreme
-            self.init_level()
-        if pyxel.btnp(pyxel.KEY_4):
-            self.current_difficulty = self.crazy
-            self.init_level()
+        # Handle Game Over state
+        if self.game_over:
+            if pyxel.btnp(pyxel.KEY_R):  # Restart game
+                self.reset_game()
+            elif pyxel.btnp(pyxel.KEY_M):  # Back to menu
+                self.in_menu = True
+                self.game_over = False
+            elif pyxel.btnp(pyxel.KEY_Q):  # Quit
+                pyxel.quit()
+            return
+        
 
 
         if self.game_over:
@@ -121,7 +143,7 @@ class Game:
                 spawn_clear = False
         
         if len(self.packages) < max_packages and spawn_clear and self.spawn_timer == 0:
-            self.packages.append(Package(230, 152))
+            self.packages.append(Package(230, 152, self))
             self.spawn_timer = random.randint(35, 40) # Wait 15-20 frames before next spawn check
 
         # Reset character states
@@ -132,6 +154,12 @@ class Game:
         for pkg in self.packages:
             pkg.pkg_movement()
             
+            # Check for delivered
+            if pkg.state == "delivered":
+                self.packages.remove(pkg)
+                self.score += 1
+                continue
+
             # Check for miss 
             if pkg.x < 15 or pkg.x > 240:
                 self.failures += 1
@@ -148,5 +176,27 @@ class Game:
         self.mario.update()
         self.luigi.update()
 
+
     def draw(self):
+        # Show main menu screen
+        if self.in_menu:
+            self.renderer.draw_menu()
+            return  # Skip game rendering while in menu
+        
+        # Show Game Over screen
+        if self.game_over:
+            self.renderer.draw_game_over()
+            return
+
+        # Normal game rendering
         self.renderer.draw_game(self)
+
+    def reset_game(self):
+        self.score = 0
+        self.failures = 0
+        self.packages = [Package(230, 152, self)]
+        self.spawn_timer = 40
+        self.game_over = False
+        self.init_level()
+        self.mario = Character("Mario", 212, 162, self)
+        self.luigi = Character("Luigi", 38, 150, self)
