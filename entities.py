@@ -84,8 +84,8 @@ class Package:
             self.game.truck.load_package()
             self.state = "delivered"
 
-            
         # height change
+        #Luigi
         elif self.x < 45:
             if self.caught:
                 self.y -= 16
@@ -94,6 +94,7 @@ class Package:
             elif self.y < 152:
                  self.y += 5 # Fall off
         
+        #Mario
         if self.x > 195:
             if self.caught:
                 self.y -= 16
@@ -137,9 +138,6 @@ class Package:
                 character.state = "prepared"
 
 
-  
-        
-        
 class Conveyor:
     """
     Represents a static conveyor belt segment.

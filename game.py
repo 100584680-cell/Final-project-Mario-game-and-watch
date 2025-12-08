@@ -3,6 +3,7 @@ from renderer import Renderer
 from characters import Character
 from entities import Truck, Conveyor, Package
 import random
+import time
 
 # Constants
 SCREEN_W = 256 
@@ -59,6 +60,8 @@ class Game:
         self.failures = 0
         self.game_over = False
         self.spawn_timer = 40
+        self.boss_timer = 0
+        self.boss_active = False
         
         self.init_level()
         
@@ -100,7 +103,6 @@ class Game:
         4. Package spawning logic
         5. Entity updates (packages, characters, collisions)
         """
-
         # Handle main menu input
         if self.in_menu:
             if pyxel.btnp(pyxel.KEY_1):
@@ -181,12 +183,18 @@ class Game:
                 continue
 
             # Check for miss 
-            if pkg.x < 15 or pkg.x > 240:
+            if pkg.x < 15:
                 self.failures += 1
                 self.packages.remove(pkg)
-                if self.failures >= 3:
-                    self.game_over = True
-            
+                self.boss_side = "left"
+                self.boss_timer = 60 # Set timer for boss animation
+
+            if pkg.x > 240:
+                self.failures += 1
+                self.packages.remove(pkg)
+                self.boss_side = "right"
+                self.boss_timer = 60 # Set timer for boss animation
+                         
             # Update character states based on package proximity
             pkg.show_miss_rect = False
             pkg.caught = False
@@ -195,6 +203,8 @@ class Game:
 
         self.mario.update()
         self.luigi.update()
+
+        
 
 
     def draw(self):
@@ -217,6 +227,7 @@ class Game:
         self.packages = [Package(230, 152, self)]
         self.spawn_timer = 100
         self.game_over = False
+        self.boss_active = False
         self.init_level()
         self.mario = Character("Mario", 212, 162, self)
         self.luigi = Character("Luigi", 38, 150, self)

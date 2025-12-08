@@ -1,5 +1,5 @@
 import pyxel
-
+import time
 from characters import SPRITES
 # Constants
 SCREEN_W = 256
@@ -42,6 +42,7 @@ class Renderer:
             self.draw_package(pkg)
         self.draw_character(game.mario)
         self.draw_character(game.luigi)
+        self.draw_boss(game)
 
         if game.game_over:
             self.draw_game_over()
@@ -196,3 +197,19 @@ class Renderer:
     def draw_character(self, character):
         u, v, w, h = SPRITES[character.name][character.state]
         pyxel.blt(character.x, character.y, 0, u, v, w, h, 0)
+
+    def draw_boss(self, game):
+        # Always draw closed doors
+        pyxel.blt(23, 150, 0, 80, 40, 16, 16, 0)   # Left door closed
+        pyxel.blt(230, 134, 0, 80, 40, 16, 16, 0)  # Right door closed
+
+        if not game.boss_active:
+            return
+
+        # Draw open door and boss depending on side
+        if game.boss_side == "left":
+            pyxel.blt(23, 150, 0, 96, 40, 16, 16, 0)   # Left door open
+            pyxel.blt(23, 150, 0, 0, 112, 16, 16, 0)    # Boss scolding Luigi
+        elif game.boss_side == "right":
+            pyxel.blt(230, 134, 0, 96, 40, 16, 16, 0)  # Right door open
+            pyxel.blt(230, 134, 0, 16, 112, 16, 16, 0)  # Boss scolding Mario
