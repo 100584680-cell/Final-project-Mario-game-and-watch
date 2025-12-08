@@ -2,7 +2,6 @@ import pyxel
 from renderer import Renderer
 from characters import Character
 from entities import Truck, Conveyor, Package
-import time
 import random
 
 # Constants
@@ -10,6 +9,10 @@ SCREEN_W = 256
 SCREEN_H = 192
 
 class Difficulty:
+    """
+    Configuration for game difficulty levels.
+    Controls belt count, speeds, spawn rates, and scoring rules.    (could be several dictionaries)
+    """
     def __init__(
             self,
             name: str,
@@ -33,6 +36,10 @@ class Difficulty:
             self.invert_controls = invert_controls
 
 class Game:
+    """
+    Main game controller.
+    Manages the game loop, state, input, and entities.
+    """
     def __init__(self):
         pyxel.init(SCREEN_W, SCREEN_H, title="Mario Bros Game & Watch")
         pyxel.load("assets.pyxres")
@@ -62,6 +69,10 @@ class Game:
         pyxel.run(self.update, self.draw)
 
     def init_level(self):
+        """
+        Sets up the level based on the current difficulty configuration.
+        Initializes truck position and number of conveyor belts.
+        """
         # Determine truck position
         if self.current_difficulty.name == "easy" or self.current_difficulty.name == "crazy":
             self.truck = Truck(0, 94)
@@ -80,8 +91,17 @@ class Game:
         self.conveyors.append(Conveyor(230, 166, 36, 1))
 
     def update(self):
-        # Handle main menu input
+        """
+        Main game loop update function.
+        Handles:
+        1. Menu input
+        2. Game Over input
+        3. Character movement input
+        4. Package spawning logic
+        5. Entity updates (packages, characters, collisions)
+        """
 
+        # Handle main menu input
         if self.in_menu:
             if pyxel.btnp(pyxel.KEY_1):
                 self.current_difficulty = self.easy
@@ -195,7 +215,7 @@ class Game:
         self.score = 0
         self.failures = 0
         self.packages = [Package(230, 152, self)]
-        self.spawn_timer = 40
+        self.spawn_timer = 100
         self.game_over = False
         self.init_level()
         self.mario = Character("Mario", 212, 162, self)

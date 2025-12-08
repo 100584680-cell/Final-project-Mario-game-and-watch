@@ -1,5 +1,6 @@
 import pyxel
-from entities import Conveyor, Truck, Package
+
+from characters import SPRITES
 # Constants
 SCREEN_W = 256
 SCREEN_H = 192
@@ -7,6 +8,9 @@ COLOR_BG = 7
 COLOR_TEXT = 0
 
 class Renderer:
+    """
+    Handles all drawing operations for the game using Pyxel's blt function.
+    """
     def __init__(self):
         pass
 
@@ -19,6 +23,10 @@ class Renderer:
 
 
     def draw_game(self, game):
+        """
+        Main drawing function for the active game state.
+        Orders drawing layers: background, machines, entities, characters, HUD.
+        """
         pyxel.cls(COLOR_BG)
         self.draw_background(game)
         self.draw_hud(game.score, game.failures)
@@ -38,7 +46,6 @@ class Renderer:
         if game.game_over:
             self.draw_game_over()
 
-#TEMPORAL
     def draw_game_over(self):
         pyxel.cls(0)
         pyxel.text(90, 80, "GAME OVER", 8)  # red text
@@ -187,6 +194,5 @@ class Renderer:
        
 
     def draw_character(self, character):
-        from characters import SPRITES # Import SPRITES here to avoid circular dependency if needed, or move SPRITES to a shared file
         u, v, w, h = SPRITES[character.name][character.state]
         pyxel.blt(character.x, character.y, 0, u, v, w, h, 0)

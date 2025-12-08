@@ -1,4 +1,4 @@
-from time import sleep
+
 
 
 SPRITES = {
@@ -21,7 +21,12 @@ SPRITES = {
     }
 }
 
+
 class Character:
+    """
+    Represents Mario or Luigi.
+    Handles movement restrictions based on difficulty and animation states. (not complete)
+    """
     def __init__(self, name: str, x: int, y: int, game):
         self.game = game
         self.name = name
@@ -29,6 +34,16 @@ class Character:
         self.__y = y
         self.state = "normal"
         self.anim_tick = 0
+
+    @property
+    def state(self):
+        return self.__state
+
+    @state.setter
+    def state(self, value):
+        if not isinstance(value, str):
+            raise TypeError("State must be a string")
+        self.__state = value
 
     def catch(self):
         self.anim_tick = 1

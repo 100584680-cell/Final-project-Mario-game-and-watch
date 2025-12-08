@@ -1,14 +1,29 @@
 class Package:
+    """
+    Represents a package moving through the conveyor belts.
+    Handles its own movement logic, state (normal, falling, delivered),
+    and interacts with the truck and characters.
+    """
     def __init__(self, x, y, game):
         self.x = x
         self.y = y
         self.game = game
         self.state = "normal"
-        self.caught = False
+        self.caught = False # track if caught by a character
         self.carrier = None
         self.floor = 0
-        self.aux_pkg = 0
+        self.aux_pkg = 0 # auxiliary counter for movement timing
         self.direction = ""
+
+    @property
+    def state(self):
+        return self.__state
+
+    @state.setter
+    def state(self, value):
+        if not isinstance(value, str):
+            raise TypeError("State must be a string")
+        self.__state = value
 
     @property
     def luigi_y(self):
@@ -43,7 +58,12 @@ class Package:
         self.__y = value
 
 
+
     def pkg_movement(self):
+        """
+        Calculates the package's next position based on its location,
+        the current difficulty (which dictates belt layout), and its state.
+        """
         # Reset state to normal if it was falling (ensures 1-tick duration)
         if self.state == "falling":
             self.state = "normal"
@@ -117,17 +137,14 @@ class Package:
                 character.state = "prepared"
 
 
-        # Luigi (Left side)
-        elif character.name == "Luigi":
-            if self.x < 65 and abs(self.y - character.y) < 20 and self.y > character.y:
-                if not self.caught:
-                    self.caught = True
-                    character.catch()
-                character.state = "prepared"
   
         
         
 class Conveyor:
+    """
+    Represents a static conveyor belt segment.
+    Mainly used for rendering and verifying platform positions.
+    """
     def __init__(self, x, y, length, direction):
         self.__x = 0
         self.__y = 0
@@ -162,6 +179,10 @@ class Conveyor:
         self.__y = value
 
 class Truck:
+    """
+    Represents the delivery truck.
+    Collects packages and has a delivery animation sequence.
+    """
     def __init__(self, x, y):
         self.__x = 0
         self.__y = 0
@@ -170,6 +191,16 @@ class Truck:
         self.capacity = 8
         self.load = 0
         self.state = "waiting"    # waiting, delivering, returning
+
+    @property
+    def state(self):
+        return self.__state
+
+    @state.setter
+    def state(self, value):
+        if not isinstance(value, str):
+            raise TypeError("State must be a string")
+        self.__state = value
 
     @property
     def x(self):
@@ -195,12 +226,7 @@ class Truck:
             raise ValueError("y must be non-negative")
         self.__y = value
 
-    def __init__(self, x: int, y: int):
-        self.x = x
-        self.y = y
-        self.capacity = 8
-        self.load = 0
-        self.state = "waiting"  # waiting, delivering, returning
+
 
     def load_package(self):
         if self.state == "waiting":
