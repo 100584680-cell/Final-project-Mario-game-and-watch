@@ -73,7 +73,7 @@ The application accepts the following user inputs:
 [ W / S ]   : Move Luigi
 [ Q ]                   : Quit Application
 
-
+Project can be also found at https://github.com/100584680-cell/Final-project-Mario-game-and-watch
 
 ========================================================================
 End of Document
