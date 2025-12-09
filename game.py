@@ -194,7 +194,7 @@ class Game:
                 self.packages.remove(pkg)
                 self.boss_side = "right"
                 self.boss_timer = 60 # Set timer for boss animation
-                         
+                
             # Update character states based on package proximity
             pkg.show_miss_rect = False
             pkg.caught = False
@@ -203,6 +203,9 @@ class Game:
 
         self.mario.update()
         self.luigi.update()
+
+        if self.failures >= 3:
+            self.game_over = True
 
         
 
